@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 
+# Ignore warnings
+import warnings
+warnings.filterwarnings('ignore')
+
 # import modules
 import pandas as pd
 import numpy as np
 import codecs
 import json
+import time
+import os
 
 # sklearn
 from sklearn.feature_extraction.text import CountVectorizer
@@ -25,17 +31,21 @@ from assets import stopwords
 from assets import stopsigns
 
 
-# Utils
+print ('')
+print (f'Init program: {time.ctime()}')
 
+
+# Utils
 def load_stop_assets(vocabulary=[]):
 	'''
 	'''
 	obj = {}
-	assets = stopwords
-	obj['words'] = [i for i in assets if i not in vocabulary]
+	obj['words'] = [
+        i for i in stopwords.stopwords if i not in vocabulary
+    ]
 	
 	# load stop signs
-	obj['punctuation'] = stopsigns
+	obj['punctuation'] = stopsigns.stopsigns
 	
 	return obj
 
@@ -111,10 +121,12 @@ específicos
 - Content (Texto)
 - Polarity (Clasificación del contenido [e.g., N o P])
 '''
-
-path = ''
+print ('')
+print ('')
+print (' Loading dataset')
+path = './data/plebiscito_test_dataset.csv'
 data = pd.read_csv(path, encoding='utf-8', low_memory=False)
-
+print (' done!')
 
 # bag of words and vocabulary
 stop_assets = load_stop_assets(vocabulary=list(vocabulary.keys()))
@@ -134,7 +146,7 @@ stopw = stop_assets['words']
 # Train set and Test set
 X = data['Content'].copy()
 y = data['Polarity'].copy()
-
+seed = 7
 stratified_split = StratifiedShuffleSplit(
 	n_splits=1, test_size=0.20, random_state=seed
 )
@@ -152,6 +164,8 @@ y_test = y_test.reset_index(drop=True)
 
 
 # Create Pipeline
+print ('')
+print (' Training model...')
 pipeline = Pipeline([
     ('vector', CountVectorizer(stop_words=stopw)),
     ('tfidf', TfidfTransformer()),
@@ -173,36 +187,55 @@ grid = GridSearchCV(
     pipeline, cv=15, param_grid=parameters, verbose=0
 )
 grid.fit(X_train, y_train)
+print (' done!')
 
 
 y_preds = grid.predict(X_test)
 y_test_array = np.array(y_test)
 
 # debug metrics
-print (f'accuracy score -> {accuracy_score(y_test, y_preds)}')
+print ('')
+print ('')
+print ('')
+print (' MODEL METRICS')
+print (f' accuracy score -> {accuracy_score(y_test, y_preds)}')
 p_score_micro = precision_score(
     y_test_array, y_preds, average='micro'
 )
-print (f'precision score micro -> {p_score_micro}')
+print (f' precision score micro -> {p_score_micro}')
 p_score_macro = precision_score(
     y_test_array, y_preds, average='macro'
 )
-print (f'precision score macro -> {p_score_macro}')
+print (f' precision score macro -> {p_score_macro}')
 recall_micro = recall_score(y_test_array, y_preds, average='micro')
-print (f'recall score micro -> {recall_micro}')
+print (f' recall score micro -> {recall_micro}')
 recall_macro = recall_score(y_test_array, y_preds, average='macro')
-print (f'recall score macro -> {recall_macro}')
+print (f' recall score macro -> {recall_macro}')
 f1_score_micro = f1_score(y_test_array, y_preds, average='micro')
-print (f'f1 score micro -> {f1_score_micro}')
+print (f' f1 score micro -> {f1_score_micro}')
 f1_score_macro = f1_score(y_test_array, y_preds, average='macro')
-print (f'f1 score macro -> {f1_score_macro}')
+print (f' f1 score macro -> {f1_score_macro}')
 matthews_corrcoef_ = matthews_corrcoef(y_test_array, y_preds)
-print (f'matthews_corrcoef -> {matthews_corrcoef_}')
+print (f' matthews_corrcoef -> {matthews_corrcoef_}')
 
 # accuracy score
-print (f'accuracy score\n{confusion_matrix(y_test, y_preds)}')
-print (f'accuracy score\n{classification_report(y_test, y_preds)}')
+print (f' accuracy score\n{confusion_matrix(y_test, y_preds)}')
+print (f' accuracy score\n{classification_report(y_test, y_preds)}')
+print ('')
+print ('')
+print ('')
 
 # saving model
-root = 'plebiscito_BernoulliNB.best.pkl'
+if not os.path.exists('./result/'):
+    os.mkdir('./result/')
+
+print ('')
+print (' Saving model')
+root = './result/plebiscito_BernoulliNB.best.pkl'
 joblib.dump(grid, root)
+print (' done!')
+
+
+print ('')
+print ('')
+print (f'End program: {time.ctime()}')
