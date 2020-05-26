@@ -5,3 +5,6 @@ __pycache__/
 
 # ignore data folder
 data/
+
+# do not push pkl files
+*.pkl
