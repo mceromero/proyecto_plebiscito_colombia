@@ -52,7 +52,9 @@ def clean_document(split_document, stop_assets):
     '''
     '''
     for p in stop_assets['punctuation']:
-        split_document = [w.replace(p, ' ').strip() for w in split_document]
+        split_document = [
+            w.replace(p, ' ').strip() for w in split_document
+        ]
     
     # clean document
     document = ' '.join(split_document).strip().lower()
@@ -161,10 +163,15 @@ parameters = {
     'vector__ngram_range': [(1, 1), (1, 2), (1, 3), (2, 3)],
     'vector__min_df': (1, 2, 3, 5),
     'tfidf__use_idf': (False, True),
-    'classifier__alpha': (1.0, 0.7, 0.5, 0.3, 0.1, 0.07, 0.05, 0.03, 0.01, 0.007, 0.005, 0.001)
+    'classifier__alpha': (
+        1.0, 0.7, 0.5, 0.3, 0.1, 0.07, 0.05, 0.03, 0.01, 0.007,
+        0.005, 0.001
+    )
 }
 
-grid = GridSearchCV(pipeline, cv=15, param_grid=parameters, verbose=0)
+grid = GridSearchCV(
+    pipeline, cv=15, param_grid=parameters, verbose=0
+)
 grid.fit(X_train, y_train)
 
 
@@ -173,9 +180,13 @@ y_test_array = np.array(y_test)
 
 # debug metrics
 print (f'accuracy score -> {accuracy_score(y_test, y_preds)}')
-p_score_micro = precision_score(y_test_array, y_preds, average='micro')
+p_score_micro = precision_score(
+    y_test_array, y_preds, average='micro'
+)
 print (f'precision score micro -> {p_score_micro}')
-p_score_macro = precision_score(y_test_array, y_preds, average='macro')
+p_score_macro = precision_score(
+    y_test_array, y_preds, average='macro'
+)
 print (f'precision score macro -> {p_score_macro}')
 recall_micro = recall_score(y_test_array, y_preds, average='micro')
 print (f'recall score micro -> {recall_micro}')
