@@ -21,7 +21,7 @@ def return_prob(model, data):
 Caragar en esta línea de código el modelo creado
 en main.py
 '''
-root_model = ''
+root_model = './result/model.best.pkl'
 model = joblib.load(root_model)
 
 # load data

@@ -231,7 +231,7 @@ if not os.path.exists('./result/'):
 
 print ('')
 print (' Saving model')
-root = './result/plebiscito_BernoulliNB.best.pkl'
+root = './result/model.best.pkl'
 joblib.dump(grid, root)
 print (' done!')
 
